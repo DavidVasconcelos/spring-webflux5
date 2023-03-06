@@ -1,10 +1,8 @@
 spring:
   application:
     name: /stock-trading
-  main:
-    banner-mode: 'OFF'
   mongodb:
     embedded:
-      version: 4.4.1
+      version: 3.5.5
 server:
   port: ${SERVER_PORT:8080}
