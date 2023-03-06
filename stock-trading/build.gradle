@@ -1,0 +1,84 @@
+buildscript {
+	ext.kotlin_version = '1.7.22'
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+	}
+}
+
+plugins {
+	id "org.jetbrains.kotlin.jvm"            version "${kotlinVersion}"
+	id "org.jetbrains.kotlin.plugin.spring"  version "${kotlinVersion}"
+	id "org.jetbrains.kotlin.plugin.allopen" version "${kotlinVersion}"
+	id "org.springframework.boot"            version "${springBootVersion}"
+	id "io.spring.dependency-management"     version "${dependencyManagementVersion}"
+	id "io.gitlab.arturbosch.detekt"         version "${detektVersion}"
+}
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'kotlin'
+apply plugin: 'java'
+apply plugin: "io.gitlab.arturbosch.detekt"
+
+
+def jarSuffix = System.getenv('JAR_SUFFIX') ?: ""
+description = description
+group       = group
+version     = version + jarSuffix
+java.sourceCompatibility = JavaVersion.VERSION_17
+
+apply from: 'dependencies.gradle'
+
+repositories {
+	mavenCentral()
+}
+
+jar {
+	enabled = false
+}
+
+bootJar {
+	launchScript()
+}
+
+compileKotlin {
+	kotlinOptions {
+		freeCompilerArgs += "-Xjsr305=strict"
+		jvmTarget = "17"
+	}
+}
+
+compileTestKotlin {
+	kotlinOptions {
+		freeCompilerArgs += "-Xjsr305=strict"
+		jvmTarget = "17"
+	}
+}
+
+test {
+	useJUnitPlatform()
+	ignoreFailures = false
+	jvmArgs = ["-Duser.timezone=America/Sao_Paulo",
+			   "-XX:+UnlockExperimentalVMOptions"]
+}
+
+sourceSets {
+	main {
+		java.srcDir("src/main/kotlin")
+	}
+	test {
+		java.srcDir("src/test/kotlin")
+	}
+}
+
+detekt {
+	toolVersion = detektVersion
+	config = files("../config/detekt.yml")
+	autoCorrect = true
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
