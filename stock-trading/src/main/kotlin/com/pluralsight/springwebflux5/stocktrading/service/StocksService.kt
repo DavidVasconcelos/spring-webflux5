@@ -1,7 +1,8 @@
-package com.pluralsight.springwebflux5.stocktrading
+package com.pluralsight.springwebflux5.stocktrading.service
 
-import com.pluralsight.springwebflux5.stocktrading.dto.StockRequest
-import com.pluralsight.springwebflux5.stocktrading.dto.StockResponse
+import com.pluralsight.springwebflux5.stockcommons.dto.StockRequest
+import com.pluralsight.springwebflux5.stockcommons.dto.StockResponse
+import com.pluralsight.springwebflux5.stocktrading.entity.Stock
 import com.pluralsight.springwebflux5.stocktrading.exception.StockCreationException
 import com.pluralsight.springwebflux5.stocktrading.exception.StockNotFoundException
 import com.pluralsight.springwebflux5.stocktrading.repository.StocksRepository
@@ -14,12 +15,9 @@ import java.math.BigDecimal
 
 @Service
 class StocksService(private val repository: StocksRepository) {
-
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
     fun getOneStock(id: String): Mono<StockResponse> = repository
         .findById(id)
-        .map(::StockResponse)
+        .map(Stock::toResponse)
         .switchIfEmpty(Mono.error(StockNotFoundException("Stock not found with id: $id")))
         .doFirst { run { logger.info("Retrieving stock with id: $id") } }
         .doOnNext { stock -> logger.info("Stock found: $stock") }
@@ -30,7 +28,7 @@ class StocksService(private val repository: StocksRepository) {
     fun getAllStocks(priceGreaterThan: BigDecimal): Flux<StockResponse> = repository
         .findAll()
         .filter { stock -> stock.price > priceGreaterThan }
-        .map(::StockResponse)
+        .map(Stock::toResponse)
         .doFirst { run { logger.info("Retrieving all stocks") } }
         .doOnNext { stock -> logger.info("Stock found: $stock") }
         .doOnError { ex -> logger.error("Something went wrong while retrieving the stocks", ex) }
@@ -38,8 +36,12 @@ class StocksService(private val repository: StocksRepository) {
         .doFinally { signalType -> logger.info("Finalized retrieving stock with signal type: $signalType") }
 
     fun createStock(stockRequest: StockRequest) = Mono.just(stockRequest)
-        .map(StockRequest::toModel)
+        .map(::Stock)
         .flatMap { stock -> repository.save(stock) }
-        .map(::StockResponse)
+        .map(Stock::toResponse)
         .onErrorMap { ex -> StockCreationException(ex.message!!) }
+
+    companion object {
+        private val logger: Logger = LoggerFactory.getLogger(this::class.java)
+    }
 }

@@ -6,3 +6,6 @@ spring:
       version: 3.5.5
 server:
   port: ${SERVER_PORT:8080}
+clients:
+  stockMarket:
+    baseUrl: "http://localhost:8050"

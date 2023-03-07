@@ -1,8 +1,8 @@
 package com.pluralsight.springwebflux5.stocktrading.controller
 
-import com.pluralsight.springwebflux5.stocktrading.StocksService
-import com.pluralsight.springwebflux5.stocktrading.dto.StockRequest
-import com.pluralsight.springwebflux5.stocktrading.dto.StockResponse
+import com.pluralsight.springwebflux5.stockcommons.dto.StockRequest
+import com.pluralsight.springwebflux5.stockcommons.dto.StockResponse
+import com.pluralsight.springwebflux5.stocktrading.service.StocksService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping

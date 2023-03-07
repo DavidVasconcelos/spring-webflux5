@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class StockTradingApplication
 
 fun main() {
-	runApplication<StockTradingApplication>()
+    runApplication<StockTradingApplication>()
 }
