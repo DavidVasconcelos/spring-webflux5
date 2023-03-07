@@ -5,7 +5,7 @@ import java.math.BigDecimal
 
 data class StockRequest(
     val id: String? = null,
-    @JsonProperty("stockName") val name: String? = null,
-    val price: BigDecimal? = null,
-    val currency: String? = null
+    @JsonProperty("stockName") val name: String,
+    val price: BigDecimal,
+    val currency: String
 )

@@ -15,14 +15,14 @@ data class Stock(
     val currency: Currency
 ) {
     constructor(request: StockRequest) : this(
-        null,
-        request.name!!,
-        request.price!!,
-        Currency.valueOf(request.currency!!)
+        request.id,
+        request.name,
+        request.price,
+        Currency.getCurrency(request.currency)
     )
 
     fun toResponse() = StockResponse(
-        id = this.id,
+        id = this.id!!,
         name = this.name,
         price = this.price,
         currency = this.currency.toString()

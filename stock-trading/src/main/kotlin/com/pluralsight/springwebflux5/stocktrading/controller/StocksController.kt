@@ -19,8 +19,11 @@ import java.math.BigDecimal
 class StocksController(private val service: StocksService) {
 
     @GetMapping("/{id}")
-    fun getOneStock(@PathVariable id: String): Mono<StockResponse> {
-        return service.getOneStock(id, "")
+    fun getOneStock(
+        @PathVariable id: String,
+        @RequestParam(value = "currency", required = false) currency: String? = null
+    ): Mono<StockResponse> {
+        return service.getOneStock(id, currency)
     }
 
     @GetMapping

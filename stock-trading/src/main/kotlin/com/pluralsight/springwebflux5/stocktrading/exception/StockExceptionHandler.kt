@@ -1,5 +1,6 @@
 package com.pluralsight.springwebflux5.stocktrading.exception
 
+import com.pluralsight.springwebflux5.stockcommons.model.ErrorMessage
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
