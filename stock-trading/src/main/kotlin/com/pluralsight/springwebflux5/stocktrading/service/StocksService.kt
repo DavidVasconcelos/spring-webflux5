@@ -2,6 +2,7 @@ package com.pluralsight.springwebflux5.stocktrading.service
 
 import com.pluralsight.springwebflux5.stockcommons.dto.StockRequest
 import com.pluralsight.springwebflux5.stockcommons.dto.StockResponse
+import com.pluralsight.springwebflux5.stocktrading.client.StockMarketClient
 import com.pluralsight.springwebflux5.stocktrading.entity.Stock
 import com.pluralsight.springwebflux5.stocktrading.exception.StockCreationException
 import com.pluralsight.springwebflux5.stocktrading.exception.StockNotFoundException
@@ -14,10 +15,13 @@ import reactor.core.publisher.Mono
 import java.math.BigDecimal
 
 @Service
-class StocksService(private val repository: StocksRepository) {
-    fun getOneStock(id: String): Mono<StockResponse> = repository
+class StocksService(
+    private val repository: StocksRepository,
+    private val marketClient: StockMarketClient
+) {
+    fun getOneStock(id: String, currency: String): Mono<StockResponse> = repository
         .findById(id)
-        .map(Stock::toResponse)
+        .flatMap { stock -> mapToStockResponse(currency, stock) }
         .switchIfEmpty(Mono.error(StockNotFoundException("Stock not found with id: $id")))
         .doFirst { run { logger.info("Retrieving stock with id: $id") } }
         .doOnNext { stock -> logger.info("Stock found: $stock") }
@@ -40,6 +44,24 @@ class StocksService(private val repository: StocksRepository) {
         .flatMap { stock -> repository.save(stock) }
         .map(Stock::toResponse)
         .onErrorMap { ex -> StockCreationException(ex.message!!) }
+
+    private fun mapToStockResponse(
+        currency: String,
+        stock: Stock
+    ) = getCurrencyRate(currency)
+        .map { currencyRate ->
+            StockResponse(
+                id = stock.id,
+                name = stock.name,
+                currency = currencyRate.currencyName,
+                price = (stock.price.multiply(currencyRate.rate))
+            )
+        }
+
+    private fun getCurrencyRate(currency: String) = marketClient
+        .getCurrencyRates()
+        .filter { currencyRate -> currencyRate.currencyName.lowercase() == currency.lowercase() }
+        .singleOrEmpty()
 
     companion object {
         private val logger: Logger = LoggerFactory.getLogger(this::class.java)

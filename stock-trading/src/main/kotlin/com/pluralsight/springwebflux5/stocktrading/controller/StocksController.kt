@@ -20,7 +20,7 @@ class StocksController(private val service: StocksService) {
 
     @GetMapping("/{id}")
     fun getOneStock(@PathVariable id: String): Mono<StockResponse> {
-        return service.getOneStock(id)
+        return service.getOneStock(id, "")
     }
 
     @GetMapping

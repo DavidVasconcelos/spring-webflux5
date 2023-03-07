@@ -2,7 +2,8 @@ rootProject.name = "spring-webflux5"
 
 include(
     "stock-trading",
-    "stock-commons"
+    "stock-commons",
+    "stock-market"
 )
 
 pluginManagement {
@@ -22,4 +23,3 @@ pluginManagement {
         }
     }
 }
-include("stock-commons")
